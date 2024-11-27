@@ -5,15 +5,15 @@ import pandas as pd
 
 if __name__ == "__main__":
     # connection source
-    conf = connection.config("local", "config.local.json")
-    conn, engine = connection.get_conn(conf, "source")
+    conf = connection.config("marketplace_prod", "config.json")
+    conn, engine = connection.get_conn(conf, "marketplace_prod")
     cursor = conn.cursor()
 
     cursor.execute("CREATE SCHEMA IF NOT EXISTS dwh;")
     conn.commit()
 
     # connection dwh
-    conf_dwh = connection.config("local_dwh", "config.local.json")
+    conf_dwh = connection.config("dwh", "config.json")
     conn_dwh, engine_dwh = connection.get_conn(conf_dwh, "dwh")
     cursor_dwh = conn_dwh.cursor()
 
@@ -24,8 +24,7 @@ if __name__ == "__main__":
         open(os.path.join(path_query, "query.sql"), "r").read(), strip_comments=True
     ).strip()
     dwh_design = sqlparse.format(
-        open(os.path.join(path_query, "dwh_design.sql"), "r").read(),
-        strip_comments=True,
+        open(os.path.join(path_query, "dwh_design.sql"), "r").read(), strip_comments=True
     ).strip()
 
     try:
@@ -33,7 +32,7 @@ if __name__ == "__main__":
 
         # get data from source (schema = public, if your source schema is not public, then adjust the query to use with your source schema)
         df = pd.read_sql(query, engine)
-        print(df)
+        
 
         # insert the schema into dwh schema
         cursor_dwh.execute(dwh_design)
@@ -41,7 +40,7 @@ if __name__ == "__main__":
 
         # ingest data into dwh schema
         df.to_sql(
-            "dim_orders", engine_dwh, schema="dwh", if_exists="replace", index=False
+            "dim_orders", engine_dwh, schema="public", if_exists="replace", index=False
         )
 
         print("[INFO] service etl is success")

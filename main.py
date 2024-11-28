@@ -9,13 +9,13 @@ if __name__ == "__main__":
     conn, engine = connection.get_conn(conf, "marketplace_prod")
     cursor = conn.cursor()
 
-    cursor.execute("CREATE SCHEMA IF NOT EXISTS dwh;")
-    conn.commit()
-
     # connection dwh
-    conf_dwh = connection.config("dwh", "config.json")
-    conn_dwh, engine_dwh = connection.get_conn(conf_dwh, "dwh")
+    conf_dwh = connection.config("postgres", "config.json")
+    conn_dwh, engine_dwh = connection.get_conn(conf_dwh, "postgres")
     cursor_dwh = conn_dwh.cursor()
+
+    cursor_dwh.execute("CREATE SCHEMA IF NOT EXISTS dwh;")
+    conn_dwh.commit()
 
     # get query string
     path_query = os.path.join(os.getcwd(), "query")
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
         # ingest data into dwh schema
         df.to_sql(
-            "dim_orders", engine_dwh, schema="public", if_exists="replace", index=False
+            "dim_orders", engine_dwh, schema="dwh", if_exists="replace", index=False
         )
 
         print("[INFO] service etl is success")

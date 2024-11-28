@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS dim_orders;
+DROP TABLE IF EXISTS dwh.dim_orders;
 
-CREATE TABLE dim_orders (
+CREATE TABLE dwh.dim_orders (
 	order_id INT NOT NULL,
 	order_date DATE NOT NULL,
 	user_id INT NOT NULL,
